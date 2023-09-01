@@ -1,4 +1,4 @@
-use test_gen::test_with;
+use typed_test_gen::test_with;
 
 struct MockStruct {
     _a: u32,

@@ -105,7 +105,7 @@ impl Parse for SpecializableFunction {
 /// to generate a test on each type.
 ///
 /// ```rust
-/// use test_gen::test_with;
+/// use typed_test_gen::test_with;
 ///
 /// #[test_with(u32, u64, char)]
 /// fn test_vec<T>() {
@@ -117,7 +117,7 @@ impl Parse for SpecializableFunction {
 /// 
 /// Supports using the `#[should_panic]` attribute
 /// ```rust
-/// use test_gen::test_with;
+/// use typed_test_gen::test_with;
 ///
 /// #[test_with(u32, u64, char)]
 /// #[should_panic]
