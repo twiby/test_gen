@@ -4,6 +4,17 @@ struct MockStruct {
     _a: u32,
 }
 
+enum MockEnum {
+    _FirstVariant,
+    _SecondVariant,
+    _ThirdVariant
+}
+
+union MockUnion {
+    _a: u32,
+    _b: u64
+}
+
 struct MockGenericStruct<T> {
     _a: T,
 }
@@ -22,6 +33,8 @@ mod module {
     u32, 
     String, 
     MockStruct, 
+    MockEnum, 
+    MockUnion, 
     MockGenericStruct<u32>, 
     MockGenericStruct<u64>, 
     module::MockStructInModule, 
@@ -37,6 +50,8 @@ fn test_struct<T>() {
     u32, 
     String, 
     MockStruct, 
+    MockEnum, 
+    MockUnion, 
     MockGenericStruct<u32>, 
     MockGenericStruct<u64>, 
     module::MockStructInModule, 
