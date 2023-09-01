@@ -21,6 +21,7 @@ use syn::Token;
 
 // TODO: handle multiple type argument ?
 
+/// Trait for getting a quasi unique valid identifier for an object.
 trait ToFunName {
     fn to_fun_name(&self) -> String;
 }
@@ -40,6 +41,7 @@ impl ToFunName for Path {
     }
 }
 
+/// Type for listing every type on which to specialize our test 
 struct Attributes {
     attrs: Punctuated<Path, Token![,]>,
 }
@@ -52,6 +54,7 @@ impl Parse for Attributes {
     }
 }
 
+/// Type for parsing some information about the test we want to specialize
 struct SpecializableFunction {
     should_panic: bool,
     _fn_token: Token![fn],
@@ -97,6 +100,33 @@ impl Parse for SpecializableFunction {
     }
 }
 
+/// procedural attribute macro: can replace the attribute `#[test]` with
+/// `#[test_with(u32, u64)]` for example (when placed on a function with only one generic type parameter), 
+/// to generate a test on each type.
+///
+/// ```rust
+/// use test_gen::test_with;
+///
+/// #[test_with(u32, u64, char)]
+/// fn test_vec<T>() {
+///     let vec = Vec::<T>::with_capacity(10);
+///     assert_eq!(vec.len(), 0);
+///     assert!(vec.capacity() >= 10);
+/// }
+/// ```
+/// 
+/// Supports using the `#[should_panic]` attribute
+/// ```rust
+/// use test_gen::test_with;
+///
+/// #[test_with(u32, u64, char)]
+/// #[should_panic]
+/// fn test_vec<T>() {
+///     let vec = Vec::<T>::with_capacity(10);
+///     assert_eq!(vec.len(), 0);
+///     assert!(vec.capacity() < 10);
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn test_with(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut ret = item.clone();
