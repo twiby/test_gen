@@ -5,12 +5,12 @@ struct MockStruct {
 }
 
 #[test_with(u32, String, MockStruct)]
-fn fwell<T>() {
+fn test_struct<T>() {
     assert!(true);
 }
 
 #[test_with(u32, String, MockStruct)]
 #[should_panic]
-fn fwell2<T>() {
+fn test_struct_fail<T>() {
     assert!(false);
 }
