@@ -2,6 +2,7 @@ extern crate proc_macro;
 use proc_macro::Span;
 use proc_macro::TokenStream;
 use quote::quote;
+use quote::ToTokens;
 use syn::parenthesized;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
@@ -14,19 +15,37 @@ use syn::FnArg;
 use syn::Generics;
 use syn::Ident;
 use syn::Meta;
+use syn::Path;
 use syn::Result;
 use syn::Token;
 
-// TODO: handle paths like mod::mod2::Type
-// TODO: handle generics like Type<u32>
+trait ToFunName {
+    fn to_fun_name(&self) -> String;
+}
+impl ToFunName for Path {
+    fn to_fun_name(&self) -> String {
+        let token_string = self.to_token_stream().to_string();
+        let mut ret = "".to_string();
+        for c in token_string.chars() {
+            match c {
+                ' ' => (),
+                '<' | '>' => ret.push('_'),
+                ':' => ret.push('_'),
+                c => ret.push(c),
+            };
+        }
+        ret
+    }
+}
+
 struct Attributes {
-    attrs: Punctuated<Ident, Token![,]>,
+    attrs: Punctuated<Path, Token![,]>,
 }
 
 impl Parse for Attributes {
     fn parse(input: ParseStream) -> Result<Self> {
         Ok(Attributes {
-            attrs: input.parse_terminated(Ident::parse, Token![,])?,
+            attrs: input.parse_terminated(Path::parse, Token![,])?,
         })
     }
 }
@@ -92,7 +111,7 @@ pub fn test_with(attr: TokenStream, item: TokenStream) -> TokenStream {
         let mut fun_full_name = "_specialized__".to_string();
         fun_full_name.push_str(&name_str);
         fun_full_name.push_str("__");
-        fun_full_name.push_str(&a.to_string());
+        fun_full_name.push_str(&a.to_fun_name());
         fun_full_name.push('_');
         let fun_full_ident = Ident::new(&fun_full_name, Span::call_site().into());
 
