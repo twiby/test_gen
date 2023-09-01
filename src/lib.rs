@@ -19,6 +19,8 @@ use syn::Path;
 use syn::Result;
 use syn::Token;
 
+// TODO: handle multiple type argument ?
+
 trait ToFunName {
     fn to_fun_name(&self) -> String;
 }
