@@ -1,4 +1,8 @@
 # test_gen
+
+[![crate](https://img.shields.io/crates/v/typed_test_gen.svg)](https://crates.io/crates/typed_test_gen)
+[![documentation](https://docs.rs/typed_test_gen/badge.svg)](https://docs.rs/typed_test_gen)
+
 Rust crate for defining a macro that automatically specializes generic tests on provided types. This is useful
 when we want to write identical tests with different underlying types. This crate provide the syntax `#[test_with(Type1, Type2)]`
 which will instantiate 2 tests: one on `Type1`, the other on `Type2`. Those types could be any path to any generic type like 
