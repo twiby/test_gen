@@ -27,21 +27,20 @@ trait ToFunName {
 }
 impl ToFunName for Path {
     fn to_fun_name(&self) -> String {
-        let token_string = self.to_token_stream().to_string();
-        let mut ret = "".to_string();
-        for c in token_string.chars() {
-            match c {
-                ' ' => (),
-                '<' | '>' => ret.push('_'),
-                ':' => ret.push('_'),
-                c => ret.push(c),
-            };
-        }
-        ret
+        self.to_token_stream()
+            .to_string()
+            .chars()
+            .filter_map(|c| match c {
+                ' ' => None,
+                '<' | '>' => Some('_'),
+                ':' => Some('_'),
+                c => Some(c),
+            })
+            .collect::<String>()
     }
 }
 
-/// Type for listing every type on which to specialize our test 
+/// Type for listing every type on which to specialize our test
 struct Attributes {
     attrs: Punctuated<Path, Token![,]>,
 }
@@ -101,7 +100,7 @@ impl Parse for SpecializableFunction {
 }
 
 /// procedural attribute macro: can replace the attribute `#[test]` with
-/// `#[test_with(u32, u64)]` for example (when placed on a function with only one generic type parameter), 
+/// `#[test_with(u32, u64)]` for example (when placed on a function with only one generic type parameter),
 /// to generate a test on each type.
 ///
 /// ```rust
@@ -114,7 +113,7 @@ impl Parse for SpecializableFunction {
 ///     assert!(vec.capacity() >= 10);
 /// }
 /// ```
-/// 
+///
 /// Supports using the `#[should_panic]` attribute
 /// ```rust
 /// use typed_test_gen::test_with;
