@@ -41,13 +41,13 @@ impl ToFunName for Path {
 }
 
 /// Type for listing every type on which to specialize our test
-struct Attributes {
+struct TypesToTest {
     attrs: Punctuated<Path, Token![,]>,
 }
 
-impl Parse for Attributes {
+impl Parse for TypesToTest {
     fn parse(input: ParseStream) -> Result<Self> {
-        Ok(Attributes {
+        Ok(TypesToTest {
             attrs: input.parse_terminated(Path::parse, Token![,])?,
         })
     }
@@ -128,7 +128,7 @@ impl Parse for SpecializableFunction {
 #[proc_macro_attribute]
 pub fn test_with(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut ret = item.clone();
-    let attributes = parse_macro_input!(attr as Attributes);
+    let types = parse_macro_input!(attr as TypesToTest);
     let function = parse_macro_input!(item as SpecializableFunction);
     if function.args.len() > 0 {
         panic!("Testable function must have no arguments");
@@ -137,7 +137,7 @@ pub fn test_with(attr: TokenStream, item: TokenStream) -> TokenStream {
     let name = &function.ident;
     let name_str = function.ident.to_string();
 
-    for a in attributes.attrs {
+    for a in types.attrs {
         let mut fun_full_name = "_specialized__".to_string();
         fun_full_name.push_str(&name_str);
         fun_full_name.push_str("__");
