@@ -64,27 +64,26 @@ struct SpecializableFunction {
     _block: Block,
 }
 
+impl SpecializableFunction {
+    fn is_attribute_should_panic(a: &Attribute) -> bool {
+        match a {
+            Attribute {
+                pound_token: _,
+                style: syn::AttrStyle::Outer,
+                bracket_token: _,
+                meta: Meta::Path(p),
+            } => p.is_ident(&Ident::new("should_panic", Span::mixed_site().into())),
+            _ => false,
+        }
+    }
+}
+
 impl Parse for SpecializableFunction {
     fn parse(input: ParseStream) -> Result<Self> {
-        let _attrs: Vec<Attribute> = input.call(Attribute::parse_outer)?;
-
-        let mut should_panic = false;
-        for a in _attrs {
-            match a {
-                Attribute {
-                    pound_token: _,
-                    style: syn::AttrStyle::Outer,
-                    bracket_token: _,
-                    meta: Meta::Path(p),
-                } => {
-                    if p.is_ident(&Ident::new("should_panic", Span::mixed_site().into())) {
-                        should_panic = true;
-                        break;
-                    }
-                }
-                _ => (),
-            };
-        }
+        let should_panic = input
+            .call(Attribute::parse_outer)?
+            .iter()
+            .any(Self::is_attribute_should_panic);
 
         let content;
         Ok(SpecializableFunction {
