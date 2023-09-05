@@ -1,4 +1,4 @@
-# test_gen
+# typed_test_gen
 
 [![crate](https://img.shields.io/crates/v/typed_test_gen.svg)](https://crates.io/crates/typed_test_gen)
 [![documentation](https://docs.rs/typed_test_gen/badge.svg)](https://docs.rs/typed_test_gen)

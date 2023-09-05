@@ -3,17 +3,13 @@ use proc_macro::Span;
 use proc_macro::TokenStream;
 use quote::quote;
 use quote::ToTokens;
-use syn::parenthesized;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 use syn::parse_macro_input;
 use syn::punctuated::Punctuated;
-use syn::token::Paren;
 use syn::Attribute;
-use syn::Block;
-use syn::FnArg;
-use syn::Generics;
 use syn::Ident;
+use syn::ItemFn;
 use syn::Meta;
 use syn::Path;
 use syn::Result;
@@ -53,18 +49,14 @@ impl Parse for TypesToTest {
     }
 }
 
-/// Type for parsing some information about the test we want to specialize
-struct SpecializableFunction {
+/// Type that wraps an `ItemFn`along with a bool specifying if the `#[should_panic]`
+/// attribute was added.
+struct TestFn {
+    fun: ItemFn,
     should_panic: bool,
-    _fn_token: Token![fn],
-    ident: Ident,
-    _gen: Generics,
-    _paren: Paren,
-    args: Punctuated<FnArg, Token![,]>,
-    _block: Block,
 }
 
-impl SpecializableFunction {
+impl TestFn {
     fn is_attribute_should_panic(a: &Attribute) -> bool {
         match a {
             Attribute {
@@ -78,22 +70,14 @@ impl SpecializableFunction {
     }
 }
 
-impl Parse for SpecializableFunction {
+impl Parse for TestFn {
     fn parse(input: ParseStream) -> Result<Self> {
-        let should_panic = input
-            .call(Attribute::parse_outer)?
-            .iter()
-            .any(Self::is_attribute_should_panic);
+        let fun: ItemFn = input.parse()?;
+        let should_panic = fun.attrs.iter().any(Self::is_attribute_should_panic);
 
-        let content;
-        Ok(SpecializableFunction {
+        Ok(Self {
+            fun: fun,
             should_panic: should_panic,
-            _fn_token: input.parse()?,
-            ident: input.parse()?,
-            _gen: input.parse()?,
-            _paren: parenthesized!(content in input),
-            args: content.parse_terminated(FnArg::parse, Token![,])?,
-            _block: input.parse()?,
         })
     }
 }
@@ -129,13 +113,13 @@ impl Parse for SpecializableFunction {
 pub fn test_with(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut ret = item.clone();
     let types = parse_macro_input!(attr as TypesToTest);
-    let function = parse_macro_input!(item as SpecializableFunction);
-    if function.args.len() > 0 {
+    let function = parse_macro_input!(item as TestFn);
+    if function.fun.sig.inputs.len() > 0 {
         panic!("Testable function must have no arguments");
     }
 
-    let name = &function.ident;
-    let name_str = function.ident.to_string();
+    let name = &function.fun.sig.ident;
+    let name_str = name.to_string();
 
     for a in types.attrs {
         let mut fun_full_name = "_specialized__".to_string();
