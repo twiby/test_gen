@@ -135,6 +135,7 @@ pub fn test_with(attr: TokenStream, item: TokenStream) -> TokenStream {
 
         let expanded = quote!(
             #[test]
+            #[allow(non_snake_case)]
             fn #fun_full_ident() {
                 #name::<#a>();
             }
