@@ -10,7 +10,7 @@ keywords = ["test", "generic", "type", "parameter", "macro"]
 categories = ["development-tools::testing"]
 
 [lib]
-proc_macro = true
+proc-macro = true
 
 [dependencies]
 syn = { version = "2.0", features = ["full"] }
