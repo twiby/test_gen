@@ -54,6 +54,7 @@ impl Parse for TypesToTest {
 struct TestFn {
     fun: ItemFn,
     should_panic: bool,
+    ignore: bool,
 }
 
 impl TestFn {
@@ -68,16 +69,30 @@ impl TestFn {
             _ => false,
         }
     }
+
+    fn is_attribute_ignore(a: &Attribute) -> bool {
+        match a {
+            Attribute {
+                pound_token: _,
+                style: syn::AttrStyle::Outer,
+                bracket_token: _,
+                meta: Meta::Path(p),
+            } => p.is_ident(&Ident::new("ignore", Span::mixed_site().into())),
+            _ => false,
+        }
+    }
 }
 
 impl Parse for TestFn {
     fn parse(input: ParseStream) -> Result<Self> {
         let fun: ItemFn = input.parse()?;
         let should_panic = fun.attrs.iter().any(Self::is_attribute_should_panic);
+        let ignore = fun.attrs.iter().any(Self::is_attribute_ignore);
 
         Ok(Self {
-            fun: fun,
-            should_panic: should_panic,
+            fun,
+            should_panic,
+            ignore,
         })
     }
 }
@@ -131,6 +146,9 @@ pub fn test_with(attr: TokenStream, item: TokenStream) -> TokenStream {
 
         if function.should_panic {
             ret.extend(TokenStream::from(quote!(#[should_panic])));
+        }
+        if function.ignore {
+            ret.extend(TokenStream::from(quote!(#[ignore])));
         }
 
         let expanded = quote!(

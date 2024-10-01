@@ -63,3 +63,21 @@ fn test_struct<T>() {
 fn test_struct_fail<T>() {
     assert!(false);
 }
+
+#[test_with(
+    u32, 
+    String, 
+    MockStruct, 
+    MockEnum, 
+    MockUnion, 
+    MockGenericStruct<u32>, 
+    MockGenericStruct<u64>, 
+    module::MockStructInModule, 
+    module::MockGenericStructInModule<u32>, 
+    module::MockGenericStructInModule<u64>,
+    MockGenericStruct<module::MockGenericStructInModule<u32>>
+)]
+#[ignore]
+fn test_ignored<T>() {
+    unreachable!("This test should actually be ignored");
+}
