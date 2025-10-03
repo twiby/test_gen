@@ -13,6 +13,7 @@ use syn::ItemFn;
 use syn::Meta;
 use syn::Path;
 use syn::Result;
+use syn::ReturnType;
 use syn::Token;
 
 // TODO: handle multiple type argument ?
@@ -135,6 +136,10 @@ pub fn test_with(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let name = &function.fun.sig.ident;
     let name_str = name.to_string();
+    let return_type = match function.fun.sig.output {
+        ReturnType::Default => None,
+        some => Some(some),
+    };
 
     for a in types.attrs {
         let mut fun_full_name = "_specialized__".to_string();
@@ -151,13 +156,26 @@ pub fn test_with(attr: TokenStream, item: TokenStream) -> TokenStream {
             ret.extend(TokenStream::from(quote!(#[ignore])));
         }
 
-        let expanded = quote!(
-            #[test]
-            #[allow(non_snake_case)]
-            fn #fun_full_ident() {
-                #name::<#a>();
-            }
-        );
+        let expanded = if return_type.is_some() {
+            quote!(
+                #[test]
+                #[allow(non_snake_case)]
+                #[allow(unused_must_used)]
+                fn #fun_full_ident() {
+                    if let Err(e) = #name::<#a>() {
+                        panic!("Specialized test \"{}\" on type {} failed with error {:?}", #name_str, stringify!(#a), e);
+                    }
+                }
+            )
+        } else {
+            quote!(
+                #[test]
+                #[allow(non_snake_case)]
+                fn #fun_full_ident() {
+                    #name::<#a>();
+                }
+            )
+        };
         ret.extend(TokenStream::from(expanded));
     }
 
