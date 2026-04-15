@@ -1,9 +1,9 @@
 [package]
 name = "typed_test_gen"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 license = "GPL-3.0-only"
-description = "Macros to help generate tests from functions with a generic type parameter."
+description = "Macros to help generate tests from functions with generic type parameters."
 repository = "https://github.com/twiby/test_gen/"
 readme = "README.md"
 keywords = ["test", "generic", "type", "parameter", "macro"]

@@ -31,6 +31,7 @@ impl ToFunName for Path {
                 ' ' => None,
                 '<' | '>' => Some('_'),
                 ':' => Some('_'),
+                ',' => Some('_'),
                 c => Some(c),
             })
             .collect::<String>()

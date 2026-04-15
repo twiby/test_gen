@@ -1,4 +1,6 @@
 #![deny(warnings)]
+use std::collections::HashMap;
+use std::fmt::Debug;
 use typed_test_gen::test_with;
 
 struct MockStruct {
@@ -36,6 +38,7 @@ mod module {
     MockStruct,
     MockEnum,
     MockUnion,
+    HashMap<u32, u32>,
     MockGenericStruct<u32>,
     MockGenericStruct<u64>,
     module::MockStructInModule,
@@ -53,6 +56,7 @@ fn test_struct<T>() {
     MockStruct,
     MockEnum,
     MockUnion,
+    HashMap<u32, u32>,
     MockGenericStruct<u32>,
     MockGenericStruct<u64>,
     module::MockStructInModule,
@@ -71,6 +75,7 @@ fn test_struct_fail<T>() {
     MockStruct,
     MockEnum,
     MockUnion,
+    HashMap<u32, u32>,
     MockGenericStruct<u32>,
     MockGenericStruct<u64>,
     module::MockStructInModule,
@@ -92,4 +97,9 @@ fn with_result<T>() -> Result<(), T> {
 #[should_panic]
 fn fails_with_result<T: Default>() -> Result<(), T> {
     Err(T::default())
+}
+
+#[test_with(HashMap<u32, u32>)]
+fn test_with_many_generics<T: Default + PartialEq + Debug>() {
+    assert_eq!(T::default(), T::default())
 }
